@@ -1,0 +1,13 @@
+{
+"project_name": "project1",
+"run_name": "run1",
+"resume_ckpt": "models/control_v11p_sd21_scribble.ckpt",
+"wandb_key": "aaaaaabbbbbbbbbbccccccccccc",
+"batch_size": 3,
+"image_logger_freq": 200,
+"learning_rate": 1e-7,
+"save_ckpt_every_n_steps": 200,
+"wipe_older_ckpts": true,
+"multi_gpu": false,
+"max_steps": 10000
+}
