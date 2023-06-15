@@ -11,8 +11,6 @@ pytorch_lightning==2.0.0
 safetensors==0.3.0
 scipy==1.10.1
 timm==0.8.15.dev0
-torch==2.0.0+cu118
-torchvision==0.15.1+cu118
 tqdm==4.65.0
 transformers==4.27.1
 wandb==0.13.10
