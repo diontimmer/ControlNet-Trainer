@@ -1,5 +1,5 @@
 # ControlNet-Trainer
-<a target="_blank" href="https://github.com/diontimmer/ControlNet-Trainer/blob/main/ControlNet_Trainer.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/diontimmer/ControlNet-Trainer/blob/main/ControlNet_Trainer.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a><br>
 Train your own ControlNet (https://github.com/lllyasviel/ControlNet) models for SD 1.5 and 2.1! Using a dataset of conditioning images, target images and captions you are able to create brand new models to control stable diffusion with.
