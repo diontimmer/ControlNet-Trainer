@@ -118,8 +118,13 @@ def create_controlnet_model(sd_version="2.1"):
             else "./models/v1-5-pruned.ckpt"
         )
         if not os.path.exists(sd_path):
-            url = (
+            '''url = (
                 "https://huggingface.co/stabilityai/stable-diffusion-2-1-base/resolve/main/v2-1_512-ema-pruned.ckpt"
+                if sd_version == "2.1"
+                else "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.ckpt"
+            )'''
+            url = (
+                "https://huggingface.co/Manojb/stable-diffusion-2-1-base/resolve/main/v2-1_512-ema-pruned.ckpt"
                 if sd_version == "2.1"
                 else "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.ckpt"
             )
@@ -135,7 +140,7 @@ def create_controlnet_model(sd_version="2.1"):
         else:
             print("Pretrained model already exists, skipping download...")
 
-        pretrained_weights = torch.load(sd_path)
+        pretrained_weights = torch.load(sd_path, weights_only=False)
         if "state_dict" in pretrained_weights:
             pretrained_weights = pretrained_weights["state_dict"]
 

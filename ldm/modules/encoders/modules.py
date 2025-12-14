@@ -170,12 +170,10 @@ class FrozenOpenCLIPEmbedder(AbstractEncoder):
         z = self.encode_with_transformer(tokens.to(self.device))
         return z
 
-    def encode_with_transformer(self, text):
-        x = self.model.token_embedding(text)  # [batch_size, n_ctx, d_model]
+    def encode_with_transformer(self, tokens):
+        x = self.model.token_embedding(tokens)  # [batch_size, n_ctx, d_model]
         x = x + self.model.positional_embedding
-        x = x.permute(1, 0, 2)  # NLD -> LND
         x = self.text_transformer_forward(x, attn_mask=self.model.attn_mask)
-        x = x.permute(1, 0, 2)  # LND -> NLD
         x = self.model.ln_final(x)
         return x
 
@@ -209,5 +207,3 @@ class FrozenCLIPT5Encoder(AbstractEncoder):
         clip_z = self.clip_encoder.encode(text)
         t5_z = self.t5_encoder.encode(text)
         return [clip_z, t5_z]
-
-

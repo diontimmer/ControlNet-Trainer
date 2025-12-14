@@ -3,6 +3,7 @@ import injects  # noqa: F401
 from config import config
 import torch
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import Callback
 from torch.utils.data import DataLoader
 from dataset import MyDataset
 from cldm.logger import ImageLogger
@@ -11,9 +12,22 @@ from pytorch_lightning.loggers import WandbLogger
 import wandb
 import os
 import gc
+from datetime import datetime
 
+class PeriodicLogger(Callback):
+    def __init__(self, log_interval):
+        super().__init__()
+        self.log_interval = log_interval
 
-def train_controlnet():
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+        if pl_module.global_step % self.log_interval == 0 and pl_module.global_step > 0:
+            metrics = trainer.callback_metrics
+            print(f"--- GLOBAL STEP: {int(metrics['global_step'])} TIME: {datetime.now().strftime('%I:%M:%S')} ---")
+            for key, value in metrics.items():
+                if ("step" in key) and (key != "global_step"):
+                    print(f"  {key}: {value.item():.4f}")
+
+def train_controlnet(in_notebook):
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -69,28 +83,21 @@ def train_controlnet():
     )
 
     # login to wandb and train!
-
-    trainer = (
-        pl.Trainer(
-            devices=num_gpus,
-            accelerator="gpu",
-            precision=32,
-            callbacks=[logger, checkpoint_callback],
-            log_every_n_steps=1,
-            max_epochs=config.max_epochs,
-            strategy="ddp_find_unused_parameters_true",
-            logger=wandb_logger if wandb_logger else None,
-        )
-        if config.multi_gpu
-        else pl.Trainer(
-            devices=1,
-            accelerator="gpu",
-            precision=32,
-            callbacks=[logger, checkpoint_callback],
-            log_every_n_steps=1,
-            max_epochs=config.max_epochs,
-            logger=wandb_logger,
-        )
+    strategy = "ddp_find_unused_parameters_true" if config.multi_gpu else "auto"
+    callbacks = [logger, checkpoint_callback]
+    epb = not in_notebook
+    if (in_notebook):
+      callbacks.append(PeriodicLogger(log_interval=config.log_every_n_steps))
+    trainer = pl.Trainer(
+        devices=num_gpus,
+        accelerator="gpu",
+        precision=32,
+        callbacks=callbacks,
+        log_every_n_steps=config.log_every_n_steps,
+        max_epochs=config.max_epochs,
+        strategy=strategy,
+        logger=wandb_logger if wandb_logger else None,
+        enable_progress_bar=epb,
     )
 
     print("Starting the training process...")
@@ -113,4 +120,11 @@ def train_controlnet():
 
 
 if __name__ == "__main__":
-    train_controlnet()
+    try: # Check if we're in Colab. We'll log differently to avoid spamming the output section.
+      import google.colab
+      print("Running train.py in a Colab notebook")
+      in_notebook = True
+    except:
+      print("Running train.py via the command line")
+      in_notebook = False
+    train_controlnet(in_notebook)

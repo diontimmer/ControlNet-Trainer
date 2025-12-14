@@ -14,6 +14,7 @@ config = {
     "batch_size": 3,
     "image_logger_disabled": False,
     "image_logger_freq": 250,
+    "log_every_n_steps": 1,
     "learning_rate": 1e-5,
     "max_steps": 9000,
     "max_epochs": 10,
